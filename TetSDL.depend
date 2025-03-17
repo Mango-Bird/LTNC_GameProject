@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1742193452 source:c:\codesdl2\tetsdl\main.cpp
+	<SDL.h>
+	<SDL_mixer.h>
+	<iostream>
+
