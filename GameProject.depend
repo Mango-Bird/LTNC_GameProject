@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1742312454 source:c:\codesdl2\gameproject\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<vector>
+	<iostream>
+	<string>
+	<algorithm>
+
