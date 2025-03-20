@@ -1,10 +1,32 @@
 # depslib dependency file v1.0
-1742412987 source:c:\codesdl2\gameproject\main.cpp
+1742490333 source:c:\codesdl2\gameproject\main.cpp
+	"Game.h"
+
+1742493761 source:c:\codesdl2\gameproject\entity.cpp
+	"Entity.h"
+
+1742493761 c:\codesdl2\gameproject\entity.h
+	<SDL.h>
+	<vector>
+
+1742490174 source:c:\codesdl2\gameproject\explosion.cpp
+
+1742487825 c:\codesdl2\gameproject\explosion.h
+	<SDL.h>
+	"Constants.h"
+
+1742493761 c:\codesdl2\gameproject\game.h
 	<SDL.h>
 	<SDL_image.h>
 	<vector>
 	<cstdlib>
 	<ctime>
 	<algorithm>
+	"Entity.h"
+
+1742493975 source:c:\codesdl2\gameproject\game.cpp
+	"Game.h"
 	<iostream>
+
+1742487562 c:\codesdl2\gameproject\constants.h
 
