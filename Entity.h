@@ -13,6 +13,9 @@ struct Entity {
     Entity(int x, int y, int w, int h, SDL_Texture* tex);
     void move(int dx, int dy);
     bool collidesWith(const Entity& other);
+    SDL_Rect getRect() const {
+        return { x, y, w, h };
+    }
 };
 
 struct Explosion {

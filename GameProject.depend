@@ -2,10 +2,10 @@
 1742490333 source:c:\codesdl2\gameproject\main.cpp
 	"Game.h"
 
-1742493761 source:c:\codesdl2\gameproject\entity.cpp
+1742494005 source:c:\codesdl2\gameproject\entity.cpp
 	"Entity.h"
 
-1742493761 c:\codesdl2\gameproject\entity.h
+1742632736 c:\codesdl2\gameproject\entity.h
 	<SDL.h>
 	<vector>
 
@@ -15,18 +15,27 @@
 	<SDL.h>
 	"Constants.h"
 
-1742493761 c:\codesdl2\gameproject\game.h
+1742720375 c:\codesdl2\gameproject\game.h
+	<SDL_mixer.h>
 	<SDL.h>
 	<SDL_image.h>
+	<SDL_ttf.h>
 	<vector>
 	<cstdlib>
 	<ctime>
 	<algorithm>
 	"Entity.h"
+	"Item.h"
 
-1742493975 source:c:\codesdl2\gameproject\game.cpp
+1742719903 source:c:\codesdl2\gameproject\game.cpp
 	"Game.h"
 	<iostream>
 
 1742487562 c:\codesdl2\gameproject\constants.h
+
+1742632811 c:\codesdl2\gameproject\item.h
+	"Entity.h"
+
+1742632844 source:c:\codesdl2\gameproject\item.cpp
+	"Item.h"
 
