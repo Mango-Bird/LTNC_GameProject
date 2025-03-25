@@ -1,11 +1,12 @@
 # depslib dependency file v1.0
-1742490333 source:c:\codesdl2\gameproject\main.cpp
+1742908598 source:c:\codesdl2\gameproject\main.cpp
 	"Game.h"
 
-1742494005 source:c:\codesdl2\gameproject\entity.cpp
+1742928804 source:c:\codesdl2\gameproject\entity.cpp
 	"Entity.h"
+	"Game.h"
 
-1742632736 c:\codesdl2\gameproject\entity.h
+1742928804 c:\codesdl2\gameproject\entity.h
 	<SDL.h>
 	<vector>
 
@@ -15,7 +16,7 @@
 	<SDL.h>
 	"Constants.h"
 
-1742720375 c:\codesdl2\gameproject\game.h
+1742928398 c:\codesdl2\gameproject\game.h
 	<SDL_mixer.h>
 	<SDL.h>
 	<SDL_image.h>
@@ -26,16 +27,53 @@
 	<algorithm>
 	"Entity.h"
 	"Item.h"
+	"Map.h"
 
-1742719903 source:c:\codesdl2\gameproject\game.cpp
+1742928989 source:c:\codesdl2\gameproject\game.cpp
 	"Game.h"
 	<iostream>
 
 1742487562 c:\codesdl2\gameproject\constants.h
 
-1742632811 c:\codesdl2\gameproject\item.h
+1742926662 c:\codesdl2\gameproject\item.h
+	<SDL.h>
+	<SDL_image.h>
 	"Entity.h"
 
-1742632844 source:c:\codesdl2\gameproject\item.cpp
+1742927416 source:c:\codesdl2\gameproject\item.cpp
 	"Item.h"
+
+1742907700 source:c:\codesdl2\gameproject\bullet.cpp
+	"Bullet.h"
+
+1742909626 c:\codesdl2\gameproject\bullet.h
+	"Entity.h"
+	<vector>
+
+1742907700 source:c:\codesdl2\gameproject\enemy.cpp
+	"Enemy.h"
+
+1742909626 c:\codesdl2\gameproject\enemy.h
+	"Entity.h"
+	<vector>
+
+1742909626 c:\codesdl2\gameproject\player.h
+	"Entity.h"
+
+1742909626 c:\codesdl2\gameproject\weapon.h
+	"Bullet.h"
+
+1742913402 c:\codesdl2\gameproject\map.h
+	<SDL.h>
+	<SDL_image.h>
+
+1742919099 source:c:\codesdl2\gameproject\map.cpp
+	"Map.h"
+	<iostream>
+
+1742907700 source:c:\codesdl2\gameproject\player.cpp
+	"Player.h"
+
+1742907700 source:c:\codesdl2\gameproject\weapon.cpp
+	"Weapon.h"
 

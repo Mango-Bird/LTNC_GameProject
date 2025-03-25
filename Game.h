@@ -11,14 +11,23 @@
 #include <algorithm>
 #include "Entity.h"
 #include "Item.h"
+#include "Map.h"
 
-const int SCREEN_WIDTH = 564;
-const int SCREEN_HEIGHT = 800;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 const int PLAYER_SPEED = 10;
 const int BULLET_SPEED = 10;
 const int ENEMY_SPEED = 2;
 const int ENEMY_SPAWN_RATE = 30;
 const int BULLET_COOLDOWN = 10;
+
+enum BulletType {
+    DEFAULT_BULLET,
+    AUTOCANNON_BULLET,
+    BIGSPACEGUN_BULLET,
+    WEAPON_BULLET,
+    ZAPPER_BULLET
+};
 
 class Game {
 private:
@@ -37,17 +46,30 @@ private:
     bool running;
     int playerLives;
 
+    Map* gameMap;
     Entity* player;
 
     std::vector<Heart> hearts;
     std::vector<Entity> enemyBullets;
-    std::vector<Entity> bullets;
+    std::vector<Bullet> bullets;
     std::vector<Entity> enemies;
     std::vector<Explosion> explosions;
+    std::vector<Item*> items;
 
-    SDL_Texture* backgroundTexture;
-    SDL_Texture* enemyBulletTexture;
+    BulletType currentBulletType = AUTOCANNON_BULLET;
+
+    SDL_Texture* autoCannonBulletTexture;
+    SDL_Texture* bigSpaceGunBulletTexture;
+    SDL_Texture* weaponBulletTexture;
+    SDL_Texture* zapperBulletTexture;
+
     SDL_Texture* heartTexture;
+    SDL_Texture* autoCannonTexture;
+    SDL_Texture* bigSpaceGunTexture;
+    SDL_Texture* weaponTexture;
+    SDL_Texture* zapperTexture;
+    SDL_Texture* enemyBulletTexture;
+
     SDL_Texture* playerTexture;
     SDL_Texture* enemyTexture;
     SDL_Texture* bulletTexture;

@@ -13,17 +13,26 @@ Game::Game() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     enemyBulletTexture = loadTexture("enemybullet.png");
-    heartTexture = loadTexture("heart.png");
     playerTexture = loadTexture("player.png");
     enemyTexture = loadTexture("enemy.png");
     bulletTexture = loadTexture("bullet.png");
     explosionTexture = loadTexture("explosion.png");
     explosionSound = Mix_LoadWAV("explosion.mp3");
-    backgroundTexture = IMG_LoadTexture(renderer, "gameplaybackground.JPG");
 
-    if (!backgroundTexture) {
-        SDL_Log("Không thể load background: %s", SDL_GetError());
-    }
+    heartTexture = IMG_LoadTexture(renderer, "heart.png");
+    autoCannonTexture = IMG_LoadTexture(renderer, "autocannon.png");
+    bigSpaceGunTexture = IMG_LoadTexture(renderer, "bigspacegun.png");
+    weaponTexture = IMG_LoadTexture(renderer, "weapon.png");
+    zapperTexture = IMG_LoadTexture(renderer, "zapper.png");
+
+    autoCannonBulletTexture = IMG_LoadTexture(renderer, "autocannon_bullet.png");
+    bigSpaceGunBulletTexture = IMG_LoadTexture(renderer, "bigspacegun_bullet.png");
+    weaponBulletTexture = IMG_LoadTexture(renderer, "weapon_bullet.png");
+    zapperBulletTexture = IMG_LoadTexture(renderer, "zapper_bullet.png");
+
+    currentBulletType = DEFAULT_BULLET;
+
+    gameMap = new Map(renderer);
 
     if (!explosionSound) {
         printf("Failed to load explosion sound: %s\n", Mix_GetError());
@@ -45,7 +54,7 @@ Game::Game() {
 
     scoreTexture = nullptr;  // Khởi tạo texture điểm số
 
-    player = new Entity(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 70, 70, playerTexture);
+    player = new Entity(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 41, 35, playerTexture);
     running = true;
     playerLives = 3;
     enemySpawnCounter = 0;
@@ -64,18 +73,26 @@ Game::~Game() {
     SDL_DestroyTexture(bulletTexture);
     SDL_DestroyTexture(explosionTexture);
 
+    SDL_DestroyTexture(autoCannonBulletTexture);
+    SDL_DestroyTexture(bigSpaceGunBulletTexture);
+    SDL_DestroyTexture(weaponBulletTexture);
+    SDL_DestroyTexture(zapperBulletTexture);
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-    if (backgroundTexture) {
-        SDL_DestroyTexture(backgroundTexture);
-    }
+    delete gameMap;
+
     if (scoreTexture) {
         SDL_DestroyTexture(scoreTexture);
     }
     if (font) {
         TTF_CloseFont(font);
     }
+    for (auto item : items) {
+        delete item;
+    }
+    items.clear();
 
     TTF_Quit();
     IMG_Quit();
@@ -105,7 +122,45 @@ void Game::handleInput() {
     player->move(dx, dy);
 
     if (keys[SDL_SCANCODE_SPACE] && bulletCooldown <= 0) {
-        bullets.emplace_back(player->x + player->w / 2 - 5, player->y, 15, 30, bulletTexture);
+        SDL_Texture* bulletTexture = nullptr;
+        int maxFrames = 4;
+        int spriteWidth = 32;  // 🔥 Kích thước mặc định của mỗi frame
+        int spriteHeight = 32;
+
+        switch (currentBulletType) {
+            case DEFAULT_BULLET:
+                bulletTexture = autoCannonBulletTexture;
+                maxFrames = 4;
+                spriteWidth = 32;  // Kích thước frame của DEFAULT_BULLET
+                spriteHeight = 32;
+                break;
+            case AUTOCANNON_BULLET:
+                bulletTexture = autoCannonBulletTexture;
+                maxFrames = 4;
+                spriteWidth = 32;
+                spriteHeight = 32;
+                break;
+            case BIGSPACEGUN_BULLET:
+                bulletTexture = bigSpaceGunBulletTexture;
+                maxFrames = 10;
+                spriteWidth = 32;
+                spriteHeight = 32;
+                break;
+            case WEAPON_BULLET:
+                bulletTexture = weaponBulletTexture;
+                maxFrames = 3;
+                spriteWidth = 32;
+                spriteHeight = 32;
+                break;
+            case ZAPPER_BULLET:
+                bulletTexture = zapperBulletTexture;
+                maxFrames = 8;
+                spriteWidth = 32;
+                spriteHeight = 32;
+                break;
+        }
+
+        bullets.emplace_back(player->x + player->w / 2 - 5, player->y, spriteWidth, spriteHeight, bulletTexture, maxFrames, spriteWidth, spriteHeight);
         bulletCooldown = BULLET_COOLDOWN;
     }
 }
@@ -138,12 +193,52 @@ void Game::increaseScore(int amount) {
 
 void Game::update() {
 
+    gameMap->update();
+
     // heart drop
 
-    if (rand() % 500 == 0) {  // Xác suất rơi thấp
-        hearts.emplace_back(rand() % (SCREEN_WIDTH - 30), -30, heartTexture);
+    if (rand() % 2000 == 0) {  // 1/300 cơ hội sinh Heart
+        items.push_back(new Heart(rand() % (SCREEN_WIDTH - 40), -40, heartTexture));
+    }
+    if (rand() % 3000 == 0) {  // 1/250 cơ hội sinh AutoCannon
+        items.push_back(new AutoCannon(rand() % (SCREEN_WIDTH - 50), -50, autoCannonTexture));
+    }
+    if (rand() % 3000 == 0) {  // 1/200 cơ hội sinh BigSpaceGun
+        items.push_back(new BigSpaceGun(rand() % (SCREEN_WIDTH - 45), -45, bigSpaceGunTexture));
+    }
+    if (rand() % 3000 == 0) {  // 1/180 cơ hội sinh Weapon
+        items.push_back(new Weapon(rand() % (SCREEN_WIDTH - 48), -48, weaponTexture));
+    }
+    if (rand() % 3000 == 0) {  // 1/150 cơ hội sinh Zapper
+        items.push_back(new Zapper(rand() % (SCREEN_WIDTH - 55), -55, zapperTexture));
     }
 
+    // Cập nhật tất cả Item
+    for (auto it = items.begin(); it != items.end();) {
+        (*it)->update();
+
+        if ((*it)->checkCollision(player)) {  // Sử dụng collidesWith()
+            if (dynamic_cast<Heart*>(*it)) {
+                playerLives++;  // Tăng máu
+            } else {
+                bullets.clear(); // Xóa đạn khi đổi vũ khí
+                if (dynamic_cast<AutoCannon*>(*it)) {
+                    currentBulletType = AUTOCANNON_BULLET;
+                } else if (dynamic_cast<BigSpaceGun*>(*it)) {
+                    currentBulletType = BIGSPACEGUN_BULLET;
+                } else if (dynamic_cast<Weapon*>(*it)) {
+                    currentBulletType = WEAPON_BULLET;
+                } else if (dynamic_cast<Zapper*>(*it)) {
+                    currentBulletType = ZAPPER_BULLET;
+                }
+            }
+
+            delete *it;
+            it = items.erase(it);
+        } else {
+            ++it;
+        }
+    }
     // enemybullet
     for (auto& enemy : enemies) {
         if (std::rand() % 200 < 1) { // 1                % xác suất bắn
@@ -157,27 +252,12 @@ void Game::update() {
 
     // Di chuyển đạn
 
-    for (auto& bullet : bullets) bullet.y -= BULLET_SPEED;
-    bullets.erase(std::remove_if(bullets.begin(), bullets.end(), [](const Entity& b) { return b.y < 0; }), bullets.end());
+    for (auto& bullet : bullets) {
+        bullet.update();  // Gọi hàm update() của Bullet
+    }
 
     // va chạm heart và player
 
-    for (auto it = hearts.begin(); it != hearts.end();) {
-        it->update();
-
-        // Kiểm tra va chạm với người chơi
-        if (it->checkCollision(player)) {
-            playerLives++;
-            it = hearts.erase(it);
-        }
-        // Xóa nếu ra khỏi màn hình
-        else if (it->y > SCREEN_HEIGHT) {
-            it = hearts.erase(it);
-        }
-        else {
-            ++it;
-        }
-    }
 
     // va chạm bullet và player
     for (auto it = enemyBullets.begin(); it != enemyBullets.end();) {
@@ -256,30 +336,28 @@ void Game::render() {
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    if (backgroundTexture) {
-        SDL_Rect bgRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT}; // Full màn hình
-        SDL_RenderCopy(renderer, backgroundTexture, NULL, &bgRect);
-    }
+    gameMap->render(renderer);
     SDL_Rect destRect = {player->x, player->y, player->w, player->h};
     SDL_RenderCopy(renderer, player->texture, NULL, &destRect);
+
+    for (auto& item : items) {
+        item->render(renderer);
+    }
 
     if (scoreTexture) {
         SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
     }
 
-    for (auto& heart : hearts) {
-        SDL_Rect heartRect = {heart.x, heart.y, heart.w, heart.h};
-        SDL_RenderCopy(renderer, heart.texture, NULL, &heartRect);
+    for (auto& item : items) {
+        item->render(renderer);
     }
-
     for (auto& bullet : enemyBullets) {
         SDL_Rect bulletRect = { bullet.x, bullet.y, bullet.w, bullet.h };
         SDL_RenderCopy(renderer, bullet.texture, NULL, &bulletRect);
     }
 
     for (auto& bullet : bullets) {
-        SDL_Rect bulletRect = {bullet.x, bullet.y, bullet.w, bullet.h};
-        SDL_RenderCopy(renderer, bullet.texture, NULL, &bulletRect);
+        bullet.render(renderer);  // Gọi hàm render() của Bullet
     }
 
     for (auto& enemy : enemies) {

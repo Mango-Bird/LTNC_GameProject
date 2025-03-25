@@ -18,6 +18,21 @@ struct Entity {
     }
 };
 
+struct Bullet {
+    int x, y, w, h;
+    int frame;
+    int maxFrames;
+    int frameCounter;
+    int spriteWidth, spriteHeight;
+    SDL_Texture* texture;
+
+    Bullet(int x, int y, int w, int h, SDL_Texture* tex, int maxFrames, int spriteWidth, int spriteHeight);
+    void update();
+    void render(SDL_Renderer* renderer);
+    bool collidesWith(const Entity& other);
+};
+
+
 struct Explosion {
     int x, y;
     int frame = 0;
