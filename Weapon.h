@@ -21,7 +21,7 @@ struct WeaponPack {
         if (!texture) return;
 
         // 🔥 Vũ khí luôn nằm trên player
-        weaponRect = {playerX, playerY, 50, 50};
+        weaponRect = {playerX, playerY, 70, 70};
 
         SDL_Rect srcRect = {frame * 48, 0, 48, 48};
         SDL_RenderCopy(renderer, texture, &srcRect, &weaponRect);

@@ -19,8 +19,9 @@ const int SCREEN_HEIGHT = 600;
 const int PLAYER_SPEED = 10;
 const int BULLET_SPEED = 10;
 const int ENEMY_SPEED = 2;
-const int ENEMY_SPAWN_RATE = 30;
 const int BULLET_COOLDOWN = 10;
+
+enum GameState { MENU, PLAYING, GAME_OVER };
 
 enum BulletType {
     DEFAULT_BULLET,
@@ -32,6 +33,21 @@ enum BulletType {
 
 class Game {
 private:
+
+    int enemySpawnRate = 30;  // 🔥 Tốc độ spawn ban đầu (càng nhỏ càng nhanh)
+    int lastScoreMilestone = 0;
+    int planetFrame = 0;      // 🔄 Frame hiện tại của planet
+    int maxPlanetFrames = 77;  // 🔥 Số frame tối đa (tùy theo animation của bạn)
+    int planetFrameDelay = 5; // 🔥 Độ trễ giữa các frame để animation mượt hơn
+    int planetFrameCounter = 0;
+
+    GameState gameState = MENU;  // 🔥 Mặc định hiển thị menu
+    SDL_Texture* planetTexture = nullptr;  // 🔥 Background animation cho menu
+    SDL_Texture* playButtonTexture = nullptr;
+
+    bool autoCannonSide = false;
+    int autoCannonShotCount = 0;  // 🔥 Đếm số viên đã bắn
+    bool autoCannonAnimating = false;
 
     int score;
     TTF_Font* scoreFont = nullptr;
@@ -81,7 +97,8 @@ private:
     SDL_Texture* enemyBulletTexture;
 
     SDL_Texture* playerTexture;
-    SDL_Texture* enemyTexture;
+    SDL_Texture* enemyTextures[10];  // 🔥 Mảng lưu 5 loại enemy
+    int unlockedEnemies = 1;
     SDL_Texture* bulletTexture;
     SDL_Texture* explosionTexture;
 
