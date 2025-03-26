@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "Item.h"
 #include "Map.h"
+#include "Weapon.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -32,16 +33,25 @@ enum BulletType {
 class Game {
 private:
 
-    int score;                  // Điểm số của người chơi
-    TTF_Font* font;             // Font chữ hiển thị điểm số
-    SDL_Texture* scoreTexture;  // Texture chứa điểm số
+    int score;
+    TTF_Font* scoreFont = nullptr;
+    TTF_Font* gameOverFont = nullptr;
+    SDL_Texture* scoreTexture;
     SDL_Rect scoreRect;
+
+    SDL_Texture* replayButtonTexture = nullptr;
 
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Chunk* explosionSound;
 
     Entity* barrier;
+    WeaponPack* playerWeapon = nullptr;
+
+    bool isGameOver = false;
+    SDL_Rect replayButtonRect;
+    void renderReplayButton();
+    void resetGame();
 
     bool running;
     int playerLives;
