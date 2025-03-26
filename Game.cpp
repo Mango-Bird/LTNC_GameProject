@@ -14,9 +14,14 @@ Game::Game() {
 
     planetTexture = loadTexture("planet.png");
     playButtonTexture = loadTexture("playbutton.png");
-
-    enemyBulletTexture = loadTexture("enemybullet.png");
     playerTexture = loadTexture("player.png");
+
+    enemyBulletTextures[0] = loadTexture("enemy_bullet1.png");
+    enemyBulletTextures[1] = loadTexture("enemy_bullet2.png");
+    enemyBulletTextures[2] = loadTexture("enemy_bullet3.png");
+    enemyBulletTextures[3] = loadTexture("enemy_bullet4.png");
+    enemyBulletTextures[4] = loadTexture("enemy_bullet5.png");
+
     enemyTextures[0] = loadTexture("enemy1.png");  // 🔥 Enemy đầu tiên
     enemyTextures[1] = loadTexture("enemy2.png");
     enemyTextures[2] = loadTexture("enemy3.png");
@@ -88,12 +93,16 @@ Game::~Game() {
     Mix_FreeChunk(explosionSound);  // Giải phóng âm thanh vụ nổ
     Mix_CloseAudio();
 
-    SDL_DestroyTexture(enemyBulletTexture);
     SDL_DestroyTexture(heartTexture);
     SDL_DestroyTexture(playerTexture);
     for (int i = 0; i < 10; i++) {
         if (enemyTextures[i]) {
             SDL_DestroyTexture(enemyTextures[i]);
+        }
+    }
+    for (int i = 0; i < 5; i++) {
+        if (enemyTextures[i]) {
+            SDL_DestroyTexture(enemyBulletTextures[i]);
         }
     }
     SDL_DestroyTexture(bulletTexture);
@@ -344,23 +353,33 @@ void Game::update() {
 
         // enemybullet
         for (auto& enemy : enemies) {
-            if (std::rand() % 200 < 1) { // 1                % xác suất bắn
-                enemyBullets.emplace_back(enemy.x + enemy.w / 2 - 5, enemy.y + enemy.h, 10, 20, enemyBulletTexture);
+            if (std::rand() % enemyFireRate == 0) {  // 🔥 Ngẫu nhiên bắn đạn
+                int bulletX = enemy.x + enemy.w / 2 - 10;
+                int bulletY = enemy.y + enemy.h - 20;
+                int enemyType = std::rand() % unlockedEnemies;
+
+                enemyBullets.emplace_back(bulletX, bulletY, 20, 20,
+                    enemyBulletTextures[enemyType],
+                    enemyBulletFrames[enemyType], enemyBulletDelays[enemyType],
+                    enemyBulletFrameWidth[enemyType], enemyBulletFrameHeight[enemyType]);
             }
         }
 
-        for (auto& bullet : enemyBullets) bullet.y += BULLET_SPEED;
+        // 🔥 Cập nhật animation và vị trí đạn
+        for (auto& bullet : enemyBullets) {
+            bullet.update();
+        }
         enemyBullets.erase(std::remove_if(enemyBullets.begin(), enemyBullets.end(),
-        [](const Entity& b) { return b.y > SCREEN_HEIGHT; }), enemyBullets.end());
+            [](const EnemyBullet& b) { return b.y > SCREEN_HEIGHT; }), enemyBullets.end());
 
-        // Di chuyển đạn
 
         for (auto& bullet : bullets) {
-            bullet.update();  // Gọi hàm update() của Bullet
+            bullet.y -= BULLET_SPEED;  // 🔥 Di chuyển lên trên với tốc độ BULLET_SPEED
         }
 
-        // va chạm heart và player
-
+        // 🔥 Xóa đạn nếu ra khỏi màn hình
+        bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
+        [](const Bullet& b) { return b.y < 0; }), bullets.end());
 
         // va chạm bullet và player
         for (auto it = enemyBullets.begin(); it != enemyBullets.end();) {
@@ -444,12 +463,13 @@ void Game::update() {
 }
 
 void Game::resetGame() {
-    printf("Game Reset!\n");  // 🔥 Debug khi resetGame() được gọi
+    printf("Game Reset!\n");
 
     isGameOver = false;
     playerLives = 3;
     score = 0;
 
+    enemyBullets.clear();
     bullets.clear();
     enemies.clear();
     items.clear();
@@ -461,6 +481,7 @@ void Game::resetGame() {
     playerWeapon = new WeaponPack(loadTexture("autocannon_pack.png"), 7);
     currentBulletType = AUTOCANNON_BULLET;
     autoCannonSide = false;
+    gameState = PLAYING;
 
     updateScoreTexture();  // 🔥 Cập nhật điểm số hiển thị
 }
@@ -528,8 +549,7 @@ void Game::render() {
             item->render(renderer);
         }
         for (auto& bullet : enemyBullets) {
-            SDL_Rect bulletRect = { bullet.x, bullet.y, bullet.w, bullet.h };
-            SDL_RenderCopy(renderer, bullet.texture, NULL, &bulletRect);
+            bullet.render(renderer);
         }
 
         for (auto& bullet : bullets) {

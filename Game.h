@@ -34,6 +34,7 @@ enum BulletType {
 class Game {
 private:
 
+    int enemyFireRate = 300;
     int enemySpawnRate = 30;  // 🔥 Tốc độ spawn ban đầu (càng nhỏ càng nhanh)
     int lastScoreMilestone = 0;
     int planetFrame = 0;      // 🔄 Frame hiện tại của planet
@@ -76,7 +77,7 @@ private:
     Entity* player;
 
     std::vector<Heart> hearts;
-    std::vector<Entity> enemyBullets;
+    std::vector<EnemyBullet> enemyBullets;
     std::vector<Bullet> bullets;
     std::vector<Entity> enemies;
     std::vector<Explosion> explosions;
@@ -94,7 +95,12 @@ private:
     SDL_Texture* bigSpaceGunTexture;
     SDL_Texture* weaponTexture;
     SDL_Texture* zapperTexture;
-    SDL_Texture* enemyBulletTexture;
+
+    SDL_Texture* enemyBulletTextures[5];
+    int enemyBulletFrames[5] = {3, 6, 5, 3, 4};  // 🔥 Số frame tối đa của từng loại đạn
+    int enemyBulletDelays[5] = {5, 4, 6, 3, 7};  // 🔥 Tốc độ chuyển frame
+    int enemyBulletFrameWidth[5] = {11, 64, 9, 9, 8};  // 🔥 Kích thước frame theo chiều ngang
+    int enemyBulletFrameHeight[5] = {32, 64, 9, 24, 16};
 
     SDL_Texture* playerTexture;
     SDL_Texture* enemyTextures[10];  // 🔥 Mảng lưu 5 loại enemy
