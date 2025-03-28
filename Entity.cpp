@@ -26,9 +26,9 @@ bool Bullet::collidesWith(const Entity& other) {
 }
 
 void Bullet::update() {
-    y -= 10;  // 🔥 Tất cả đạn di chuyển lên trên với tốc độ cố định
+    y -= 10;
 
-    if (++frameCounter >= 10) {  // 🔥 Điều chỉnh tốc độ animation
+    if (++frameCounter >= 10) {
         frame = (frame + 1) % maxFrames;
         frameCounter = 0;
     }
@@ -41,7 +41,6 @@ void Bullet::render(SDL_Renderer* renderer) {
     SDL_RenderCopy(renderer, texture, &srcRect, &destRect);
 }
 
-// --- Explosion ---
 Explosion::Explosion(int x, int y, SDL_Texture* tex)
     : x(x), y(y), texture(tex) {}
 

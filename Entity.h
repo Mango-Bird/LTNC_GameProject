@@ -39,7 +39,7 @@ struct EnemyBullet {
     int maxFrames;
     int frameCounter = 0;
     int frameDelay;
-    int frameWidth, frameHeight;  // 🔥 Kích thước frame của animation
+    int frameWidth, frameHeight;
 
     EnemyBullet(int x, int y, int w, int h, SDL_Texture* tex,
                 int maxF, int delay, int frameW, int frameH)
@@ -48,9 +48,8 @@ struct EnemyBullet {
           frameWidth(frameW), frameHeight(frameH) {}
 
     void update() {
-        y += 5;  // 🔥 Đạn di chuyển xuống dưới
+        y += 5;
 
-        // 🔄 Cập nhật frame animation
         frameCounter++;
         if (frameCounter >= frameDelay) {
             frame = (frame + 1) % maxFrames;

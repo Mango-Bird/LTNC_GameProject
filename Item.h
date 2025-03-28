@@ -7,20 +7,20 @@
 
 class Item : public Entity {
 protected:
-    int frame;         // Frame hiện tại của animation
-    int frameCounter;  // Bộ đếm frame để điều chỉnh tốc độ animation
-    int maxFrames;     // Tổng số frame trong spritesheet
-    int spriteWidth, spriteHeight;  // Kích thước mỗi frame
+    int frame;
+    int frameCounter;
+    int maxFrames;
+    int spriteWidth, spriteHeight;
 
 public:
     Item(int x, int y, int w, int h, SDL_Texture* texture, int maxFrames, int spriteWidth, int spriteHeight);
     virtual ~Item() {}
     virtual void update();
     virtual void render(SDL_Renderer* renderer);
-    bool checkCollision(Entity* player);  // Kiểm tra va chạm với player
+    bool checkCollision(Entity* player);
 };
 
-// 🔥 Các loại Item Drop
+
 class Heart : public Item {
 public:
     Heart(int x, int y, SDL_Texture* texture);

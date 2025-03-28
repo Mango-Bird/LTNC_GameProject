@@ -18,7 +18,7 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int PLAYER_SPEED = 10;
 const int BULLET_SPEED = 10;
-const int ENEMY_SPEED = 2;
+const int ENEMY_SPEED = 3;
 const int BULLET_COOLDOWN = 10;
 
 enum GameState { MENU, PLAYING, GAME_OVER };
@@ -35,19 +35,19 @@ class Game {
 private:
 
     int enemyFireRate = 300;
-    int enemySpawnRate = 30;  // 🔥 Tốc độ spawn ban đầu (càng nhỏ càng nhanh)
+    int enemySpawnRate = 30;
     int lastScoreMilestone = 0;
-    int planetFrame = 0;      // 🔄 Frame hiện tại của planet
-    int maxPlanetFrames = 77;  // 🔥 Số frame tối đa (tùy theo animation của bạn)
-    int planetFrameDelay = 5; // 🔥 Độ trễ giữa các frame để animation mượt hơn
+    int planetFrame = 0;
+    int maxPlanetFrames = 77;
+    int planetFrameDelay = 5;
     int planetFrameCounter = 0;
 
-    GameState gameState = MENU;  // 🔥 Mặc định hiển thị menu
-    SDL_Texture* planetTexture = nullptr;  // 🔥 Background animation cho menu
+    GameState gameState = MENU;
+    SDL_Texture* planetTexture = nullptr;
     SDL_Texture* playButtonTexture = nullptr;
 
     bool autoCannonSide = false;
-    int autoCannonShotCount = 0;  // 🔥 Đếm số viên đã bắn
+    int autoCannonShotCount = 0;
     bool autoCannonAnimating = false;
 
     int score;
@@ -61,6 +61,8 @@ private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Chunk* explosionSound;
+
+    Mix_Music* backgroundMusic = nullptr;
 
     Entity* barrier;
     WeaponPack* playerWeapon = nullptr;
@@ -97,13 +99,16 @@ private:
     SDL_Texture* zapperTexture;
 
     SDL_Texture* enemyBulletTextures[5];
-    int enemyBulletFrames[5] = {3, 6, 5, 3, 4};  // 🔥 Số frame tối đa của từng loại đạn
-    int enemyBulletDelays[5] = {5, 4, 6, 3, 7};  // 🔥 Tốc độ chuyển frame
-    int enemyBulletFrameWidth[5] = {11, 64, 9, 9, 8};  // 🔥 Kích thước frame theo chiều ngang
+    int enemyBulletFrames[5] = {3, 6, 5, 3, 4};
+    int enemyBulletDelays[5] = {5, 4, 6, 3, 7};
+    int enemyBulletFrameWidth[5] = {11, 64, 9, 9, 8};
     int enemyBulletFrameHeight[5] = {32, 64, 9, 24, 16};
 
+    const int enemyBulletSizes[5][2] = {{14, 42}, {60, 60}, {16, 16}, {15, 40}, {16, 32} };
+
     SDL_Texture* playerTexture;
-    SDL_Texture* enemyTextures[10];  // 🔥 Mảng lưu 5 loại enemy
+    SDL_Texture* enemyTextures[10];
+    int unlockedEnemiesBullets = 1;
     int unlockedEnemies = 1;
     SDL_Texture* bulletTexture;
     SDL_Texture* explosionTexture;

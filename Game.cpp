@@ -22,12 +22,12 @@ Game::Game() {
     enemyBulletTextures[3] = loadTexture("enemy_bullet4.png");
     enemyBulletTextures[4] = loadTexture("enemy_bullet5.png");
 
-    enemyTextures[0] = loadTexture("enemy1.png");  // 🔥 Enemy đầu tiên
+    enemyTextures[0] = loadTexture("enemy1.png");
     enemyTextures[1] = loadTexture("enemy2.png");
     enemyTextures[2] = loadTexture("enemy3.png");
     enemyTextures[3] = loadTexture("enemy4.png");
     enemyTextures[4] = loadTexture("enemy5.png");
-    enemyTextures[5] = loadTexture("enemy6.png");  // 🔥 Enemy đầu tiên
+    enemyTextures[5] = loadTexture("enemy6.png");
     enemyTextures[6] = loadTexture("enemy7.png");
     enemyTextures[7] = loadTexture("enemy8.png");
     enemyTextures[8] = loadTexture("enemy9.png");
@@ -59,27 +59,34 @@ Game::Game() {
 
     if (!explosionSound) {
         printf("Failed to load explosion sound: %s\n", Mix_GetError());
+    }
+
+    backgroundMusic = Mix_LoadMUS("spaceship.mp3");
+    if (!backgroundMusic) {
+        std::cout << "Không thể load nhạc nền! Lỗi: " << Mix_GetError() << std::endl;
+    }
+    if (backgroundMusic) {
+            Mix_PlayMusic(backgroundMusic, -1);
         }
 
-        score = 0;  // Bắt đầu với 0 điểm
+    score = 0;
 
-    // Khởi tạo font chữ
     if (TTF_Init() == -1) {
         SDL_Log("Lỗi khi khởi tạo SDL_ttf: %s", TTF_GetError());
         exit(1);
     }
 
-    scoreFont = TTF_OpenFont("arial.ttf", 24);  // 🔥 Font Arial cho điểm số
+    scoreFont = TTF_OpenFont("arial.ttf", 24);
     if (!scoreFont) {
         printf("Lỗi: Không thể load font Arial! %s\n", TTF_GetError());
     }
 
-    gameOverFont = TTF_OpenFont("SuperPixel.ttf", 60);  // 🔥 Font Super Pixel cho Game Over
+    gameOverFont = TTF_OpenFont("SuperPixel.ttf", 60);
     if (!gameOverFont) {
         printf("Lỗi: Không thể load font SuperPixel! %s\n", TTF_GetError());
     }
 
-    scoreTexture = nullptr;  // Khởi tạo texture điểm số
+    scoreTexture = nullptr;
 
     player = new Entity(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 70, 70, playerTexture);
     running = true;
@@ -90,7 +97,7 @@ Game::Game() {
 }
 
 Game::~Game() {
-    Mix_FreeChunk(explosionSound);  // Giải phóng âm thanh vụ nổ
+    Mix_FreeChunk(explosionSound);
     Mix_CloseAudio();
 
     SDL_DestroyTexture(heartTexture);
@@ -138,6 +145,10 @@ Game::~Game() {
     for (auto item : items) {
         delete item;
     }
+    Mix_FreeMusic(backgroundMusic);
+    backgroundMusic = nullptr;
+    Mix_CloseAudio();
+
     if (planetTexture) SDL_DestroyTexture(planetTexture);
     if (playButtonTexture) SDL_DestroyTexture(playButtonTexture);
     items.clear();
@@ -165,10 +176,11 @@ void Game::handleInput() {
 
             if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
                 mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h) {
-                gameState = PLAYING;  // 🔥 Bắt đầu game khi bấm nút Play
+                gameState = PLAYING;
             }
         }
         if (isGameOver) {
+
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -193,14 +205,14 @@ void Game::handleInput() {
         if (keys[SDL_SCANCODE_SPACE] && bulletCooldown <= 0) {
             SDL_Texture* bulletTexture = nullptr;
             int maxFrames = 4;
-            int spriteWidth = 32;  // 🔥 Kích thước mặc định của mỗi frame
+            int spriteWidth = 32;
             int spriteHeight = 32;
 
             switch (currentBulletType) {
                 case DEFAULT_BULLET:
                     bulletTexture = autoCannonBulletTexture;
                     maxFrames = 4;
-                    spriteWidth = 32;  // Kích thước frame của DEFAULT_BULLET
+                    spriteWidth = 32;
                     spriteHeight = 32;
                     break;
                 case AUTOCANNON_BULLET:
@@ -229,23 +241,22 @@ void Game::handleInput() {
                     break;
             }
 
-            int bulletX = player->x + (player->w / 2) - 35;  // 🔥 Mặc định bắn từ giữa
+            int bulletX = player->x + (player->w / 2) - 35;
             int bulletY = player->y;
             if (currentBulletType == AUTOCANNON_BULLET) {
-                // 🔥 Nếu đang dùng AutoCannon, bắn luân phiên trái ↔ phải
                 if (autoCannonSide) {
-                    bulletX = player->x - 15;  // 🔥 Bắn từ bên trái
+                    bulletX = player->x - 15;
                 } else {
-                    bulletX = player->x + player->w - 55;  // 🔥 Bắn từ bên phải
+                    bulletX = player->x + player->w - 55;
                 }
-                autoCannonSide = !autoCannonSide;  // 🔄 Đổi vị trí bắn lần sau
+                autoCannonSide = !autoCannonSide;
             }
 
             bullets.emplace_back(bulletX + player->w / 2 - 15, bulletY, spriteWidth, spriteHeight, bulletTexture, maxFrames, spriteWidth, spriteHeight);
             bulletCooldown = BULLET_COOLDOWN;
 
             if (playerWeapon) {
-                playerWeapon->nextFrame();  // 🔥 Đổi frame của vũ khí khi bắn
+                playerWeapon->nextFrame();
             }
         }
     }
@@ -253,10 +264,10 @@ void Game::handleInput() {
 
 void Game::updateScoreTexture() {
     if (scoreTexture) {
-        SDL_DestroyTexture(scoreTexture);  // 🔥 Xóa texture cũ để tránh rò rỉ bộ nhớ
+        SDL_DestroyTexture(scoreTexture);
     }
 
-    SDL_Color textColor = {255, 255, 255};  // 🔥 Màu trắng
+    SDL_Color textColor = {255, 255, 255};
     std::string scoreText = "Score: " + std::to_string(score);
 
     SDL_Surface* textSurface = TTF_RenderText_Solid(scoreFont, scoreText.c_str(), textColor);
@@ -278,55 +289,56 @@ void Game::increaseScore(int amount) {
         unlockedEnemies++;
         printf("Unlocked new enemy type! Now %d types available.\n", unlockedEnemies);
     }
-    // 🔥 Kiểm tra nếu điểm số tăng thêm 1000, giảm thời gian spawn enemy
+    if (score / 750 > unlockedEnemiesBullets - 1 && unlockedEnemiesBullets < 5) {
+        unlockedEnemiesBullets++;
+        printf("Unlocked new enemy bullet type! Now %d types available.\n", unlockedEnemiesBullets);
+    }
     if (score - lastScoreMilestone >= 1000) {
-        lastScoreMilestone = score;  // 🔥 Cập nhật mốc điểm
-        enemySpawnRate = std::max(10, enemySpawnRate - 5);  // 🔥 Giảm thời gian spawn (tối thiểu 10)
+        lastScoreMilestone = score;
+        enemySpawnRate = std::max(10, enemySpawnRate - 5);
         printf("Increased enemy spawn rate! New rate: %d\n", enemySpawnRate);
     }
 }
 
 void Game::update() {
-
     if (gameState == MENU) {
         planetFrameCounter++;
         if (planetFrameCounter >= planetFrameDelay) {
-            planetFrame = (planetFrame + 1) % maxPlanetFrames;  // 🔄 Chuyển frame
+            planetFrame = (planetFrame + 1) % maxPlanetFrames;
             planetFrameCounter = 0;
         }
     }
 
     if (gameState == PLAYING) {
         gameMap->update();
-
+        Mix_HaltMusic();
         // heart drop
 
-        if (rand() % 2000 == 0) {  // 1/300 cơ hội sinh Heart
+        if (rand() % 2000 == 0) {
             items.push_back(new Heart(rand() % (SCREEN_WIDTH - 40), -40, heartTexture));
         }
-        if (rand() % 3000 == 0) {  // 1/250 cơ hội sinh AutoCannon
+        if (rand() % 3000 == 0) {
             items.push_back(new AutoCannon(rand() % (SCREEN_WIDTH - 50), -50, autoCannonTexture));
         }
-        if (rand() % 3000 == 0) {  // 1/200 cơ hội sinh BigSpaceGun
+        if (rand() % 3000 == 0) {
             items.push_back(new BigSpaceGun(rand() % (SCREEN_WIDTH - 45), -45, bigSpaceGunTexture));
         }
-        if (rand() % 3000 == 0) {  // 1/180 cơ hội sinh Weapon
+        if (rand() % 3000 == 0) {
             items.push_back(new Weapon(rand() % (SCREEN_WIDTH - 48), -48, weaponTexture));
         }
-        if (rand() % 3000 == 0) {  // 1/150 cơ hội sinh Zapper
+        if (rand() % 3000 == 0) {
             items.push_back(new Zapper(rand() % (SCREEN_WIDTH - 55), -55, zapperTexture));
         }
 
-        // Cập nhật tất cả Item
         for (auto it = items.begin(); it != items.end();) {
             (*it)->update();
 
             if ((*it)->checkCollision(player)) {
                 if (dynamic_cast<Heart*>(*it)) {
-                    playerLives++;  // 🔥 Tăng máu nếu là item Heart
+                    playerLives++;
                 } else {
-                    bullets.clear();  // 🔥 Xóa đạn cũ khi đổi vũ khí
-                    delete playerWeapon;  // 🔥 Xóa vũ khí cũ (nếu có)
+                    bullets.clear();
+                    delete playerWeapon;
 
                     if (dynamic_cast<AutoCannon*>(*it)) {
                         playerWeapon = new WeaponPack(loadTexture("autocannon_pack.png"), 7);
@@ -351,21 +363,19 @@ void Game::update() {
         }
 
 
-        // enemybullet
         for (auto& enemy : enemies) {
-            if (std::rand() % enemyFireRate == 0) {  // 🔥 Ngẫu nhiên bắn đạn
+            if (std::rand() % enemyFireRate == 0) {
                 int bulletX = enemy.x + enemy.w / 2 - 10;
                 int bulletY = enemy.y + enemy.h - 20;
                 int enemyType = std::rand() % unlockedEnemies;
-
-                enemyBullets.emplace_back(bulletX, bulletY, 20, 20,
-                    enemyBulletTextures[enemyType],
-                    enemyBulletFrames[enemyType], enemyBulletDelays[enemyType],
-                    enemyBulletFrameWidth[enemyType], enemyBulletFrameHeight[enemyType]);
+                int bulletType = std::rand() % unlockedEnemiesBullets;
+                enemyBullets.emplace_back(bulletX, bulletY, enemyBulletSizes[bulletType][0], enemyBulletSizes[bulletType][1],
+                    enemyBulletTextures[bulletType],
+                    enemyBulletFrames[bulletType], enemyBulletDelays[bulletType],
+                    enemyBulletFrameWidth[bulletType], enemyBulletFrameHeight[bulletType]);
             }
         }
 
-        // 🔥 Cập nhật animation và vị trí đạn
         for (auto& bullet : enemyBullets) {
             bullet.update();
         }
@@ -374,25 +384,20 @@ void Game::update() {
 
 
         for (auto& bullet : bullets) {
-            bullet.y -= BULLET_SPEED;  // 🔥 Di chuyển lên trên với tốc độ BULLET_SPEED
+            bullet.y -= BULLET_SPEED;
         }
 
-        // 🔥 Xóa đạn nếu ra khỏi màn hình
         bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
         [](const Bullet& b) { return b.y < 0; }), bullets.end());
 
-        // va chạm bullet và player
         for (auto it = enemyBullets.begin(); it != enemyBullets.end();) {
             if (it->collidesWith(*player)) {
-                playerLives--; // Mất 1 mạng
+                playerLives--;
 
-                // Thêm hiệu ứng nổ
                 explosions.emplace_back(player->x, player->y, explosionTexture);
 
-                // Xóa đạn
                 it = enemyBullets.erase(it);
 
-                // Nếu hết mạng thì dừng game
                 if (playerLives <= 0){
                     isGameOver = true;
                 }
@@ -401,34 +406,29 @@ void Game::update() {
             }
         }
 
-        // Kiểm tra va chạm giữa bullet và enemy
         for (auto itBullet = bullets.begin(); itBullet != bullets.end();) {
             bool bulletHit = false;
             for (auto itEnemy = enemies.begin(); itEnemy != enemies.end();) {
                 if (itBullet->collidesWith(*itEnemy)) {
-                    // Thêm hiệu ứng nổ khi enemy bị bắn trúng
-                    increaseScore(10);
+                    increaseScore(20);
                     explosions.emplace_back(itEnemy->x, itEnemy->y, explosionTexture);
 
-                    // Xóa enemy bị bắn trúng
                     if (explosionSound) Mix_PlayChannel(-1, explosionSound, 0);
                     itEnemy = enemies.erase(itEnemy);
-                    bulletHit = true; // Đánh dấu bullet đã va chạm
-                    break; // Thoát khỏi vòng lặp enemy
+                    bulletHit = true;
+                    break;
                 } else {
                     ++itEnemy;
                 }
             }
 
             if (bulletHit) {
-                // Xóa bullet khi đã trúng enemy
                 itBullet = bullets.erase(itBullet);
             } else {
                 ++itBullet;
             }
         }
 
-        // Di chuyển enemy và kiểm tra va chạm với người chơi
         for (auto itEnemy = enemies.begin(); itEnemy != enemies.end();) {
             itEnemy->y += ENEMY_SPEED;
             if (itEnemy->y + itEnemy->h >= barrier->y || itEnemy->collidesWith(*player)) {
@@ -444,20 +444,16 @@ void Game::update() {
             }
         }
 
-        // Cập nhật hiệu ứng nổ
         for (auto& explosion : explosions) explosion.update();
         explosions.erase(std::remove_if(explosions.begin(), explosions.end(), [](const Explosion& e) { return e.isFinished(); }), explosions.end());
 
-        // Sinh enemy mới
         if (++enemySpawnCounter >= enemySpawnRate) {
             enemySpawnCounter = 0;
 
-            // 🔥 Chọn ngẫu nhiên loại enemy từ danh sách mở khóa
             int enemyType = std::rand() % unlockedEnemies;
             enemies.emplace_back(std::rand() % (SCREEN_WIDTH - 50), -50, 50, 50, enemyTextures[enemyType]);
         }
 
-        // Giảm thời gian hồi đạn
         if (bulletCooldown > 0) bulletCooldown--;
     }
 }
@@ -468,6 +464,9 @@ void Game::resetGame() {
     isGameOver = false;
     playerLives = 3;
     score = 0;
+    enemySpawnRate = 30;
+    unlockedEnemies = 1;
+    unlockedEnemiesBullets = 1;
 
     enemyBullets.clear();
     bullets.clear();
@@ -483,18 +482,16 @@ void Game::resetGame() {
     autoCannonSide = false;
     gameState = PLAYING;
 
-    updateScoreTexture();  // 🔥 Cập nhật điểm số hiển thị
+    updateScoreTexture();
 }
 
 void Game::renderReplayButton() {
-    if (!replayButtonTexture || !gameOverFont) return;  // 🔥 Nếu chưa load ảnh hoặc font, không vẽ gì
+    if (!replayButtonTexture || !gameOverFont) return;
 
-    // 🔥 Vẽ ảnh Replay
     replayButtonRect = {SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2 , 120, 120};
     SDL_RenderCopy(renderer, replayButtonTexture, NULL, &replayButtonRect);
 
 
-    // 🔥 Vẽ chữ "REPLAY" lên trên ảnh
     SDL_Color textColor = {255, 255, 255};
     SDL_Surface* textSurface = TTF_RenderText_Solid(gameOverFont, "REPLAY", textColor);
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -511,12 +508,10 @@ void Game::render() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     if (gameState == MENU) {
-        // 🔥 Vẽ background animation
         SDL_Rect srcRect = {planetFrame * 96, 0, 96, 96};  // 🔥 Điều chỉnh kích thước frame
         SDL_Rect destRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
         SDL_RenderCopy(renderer, planetTexture, &srcRect, &destRect);
 
-        // 🔥 Hiển thị tên game
         SDL_Color textColor = {255, 255, 255};
         SDL_Surface* textSurface = TTF_RenderText_Solid(scoreFont, "Plane Shooter", textColor);
         SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -525,7 +520,6 @@ void Game::render() {
         SDL_RenderCopy(renderer, titleTexture, NULL, &titleRect);
         SDL_DestroyTexture(titleTexture);
 
-        // 🔥 Hiển thị nút Play
         SDL_Rect playButtonRect = {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100};
         SDL_RenderCopy(renderer, playButtonTexture, NULL, &playButtonRect);
     } else if (gameState == PLAYING) {
@@ -541,7 +535,7 @@ void Game::render() {
         }
 
         if (scoreTexture) {
-            SDL_Rect scoreRect = {SCREEN_WIDTH - 200, 20, 180, 40};  // 🔥 Hiển thị ở góc phải trên
+            SDL_Rect scoreRect = {SCREEN_WIDTH - 200, 20, 180, 40};
             SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreRect);
         }
 
@@ -553,7 +547,7 @@ void Game::render() {
         }
 
         for (auto& bullet : bullets) {
-            bullet.render(renderer);  // Gọi hàm render() của Bullet
+            bullet.render(renderer);
         }
 
         for (auto& enemy : enemies) {
@@ -561,9 +555,8 @@ void Game::render() {
             SDL_RenderCopy(renderer, enemy.texture, NULL, &enemyRect);
         }
 
-        // Hiển thị số mạng (trái tim) trên góc trái màn hình
         for (int i = 0; i < playerLives; i++) {
-            SDL_Rect heartRect = {10 + i * 25, 10, 20, 20}; // Xếp trái tim theo hàng ngang
+            SDL_Rect heartRect = {10 + i * 25, 10, 20, 20};
             SDL_RenderCopy(renderer, heartTexture, NULL, &heartRect);
         }
 
@@ -580,7 +573,7 @@ void Game::render() {
             SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
             SDL_DestroyTexture(textTexture);
 
-            renderReplayButton();  // 🔥 Vẽ nút Replay
+            renderReplayButton();
         }
     }
 
@@ -590,7 +583,7 @@ void Game::render() {
 void Game::run() {
     while (running) {
         handleInput();
-        if (!isGameOver) {  // 🔥 Chỉ update & render nếu game chưa kết thúc
+        if (!isGameOver) {
             update();
         }
         render();
