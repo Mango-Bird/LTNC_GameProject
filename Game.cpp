@@ -410,7 +410,7 @@ void Game::update() {
             bool bulletHit = false;
             for (auto itEnemy = enemies.begin(); itEnemy != enemies.end();) {
                 if (itBullet->collidesWith(*itEnemy)) {
-                    increaseScore(20);
+                    increaseScore(100);
                     explosions.emplace_back(itEnemy->x, itEnemy->y, explosionTexture);
 
                     if (explosionSound) Mix_PlayChannel(-1, explosionSound, 0);
@@ -513,7 +513,7 @@ void Game::render() {
         SDL_RenderCopy(renderer, planetTexture, &srcRect, &destRect);
 
         SDL_Color textColor = {255, 255, 255};
-        SDL_Surface* textSurface = TTF_RenderText_Solid(scoreFont, "Plane Shooter", textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Solid(scoreFont, "Space Shooter", textColor);
         SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         SDL_FreeSurface(textSurface);
         SDL_Rect titleRect = {SCREEN_WIDTH / 2 - 300, SCREEN_HEIGHT / 8 - 70, 600, 100};
