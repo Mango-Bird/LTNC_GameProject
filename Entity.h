@@ -6,6 +6,8 @@
 
 const int EXPLOSION_FRAMES = 7;
 
+// Quản lý thực thể chung
+
 struct Entity {
     int x, y, w, h;
     SDL_Texture* texture;
@@ -18,6 +20,7 @@ struct Entity {
     }
 };
 
+// Quản lý loại đạn
 struct Bullet {
     int x, y, w, h;
     int frame;
@@ -32,6 +35,7 @@ struct Bullet {
     bool collidesWith(const Entity& other);
 };
 
+// Quản lý đạn của kẻ địch
 struct EnemyBullet {
     int x, y, w, h;
     SDL_Texture* texture;
@@ -69,7 +73,7 @@ struct EnemyBullet {
     }
 };
 
-
+// Quản lý hiệu ứng nổ
 struct Explosion {
     int x, y;
     int frame = 0;

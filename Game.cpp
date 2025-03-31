@@ -47,6 +47,11 @@ Game::Game() {
     weaponBulletTexture = IMG_LoadTexture(renderer, "weapon_bullet.png");
     zapperBulletTexture = IMG_LoadTexture(renderer, "zapper_bullet.png");
 
+    bulletSound = Mix_LoadWAV("shoot.mp3");
+    if (!bulletSound) {
+        std::cout << "Failed to load bullet sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+
     replayButtonTexture = loadTexture("replaybutton.png");
     if (!replayButtonTexture) {
         printf("Lỗi: Không thể load replaybutton.png!\n");
@@ -99,6 +104,9 @@ Game::Game() {
 Game::~Game() {
     Mix_FreeChunk(explosionSound);
     Mix_CloseAudio();
+
+    Mix_FreeChunk(bulletSound);
+    bulletSound = nullptr;
 
     SDL_DestroyTexture(heartTexture);
     SDL_DestroyTexture(playerTexture);
@@ -166,6 +174,8 @@ SDL_Texture* Game::loadTexture(const char* path) {
     return texture;
 }
 
+
+// xử lý các event
 void Game::handleInput() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -203,6 +213,9 @@ void Game::handleInput() {
         player->move(dx, dy);
 
         if (keys[SDL_SCANCODE_SPACE] && bulletCooldown <= 0) {
+            if (bulletSound) {
+                Mix_PlayChannel(-1, bulletSound, 0);
+            }
             SDL_Texture* bulletTexture = nullptr;
             int maxFrames = 4;
             int spriteWidth = 32;
@@ -312,8 +325,8 @@ void Game::update() {
     if (gameState == PLAYING) {
         gameMap->update();
         Mix_HaltMusic();
-        // heart drop
 
+        // Item Drop
         if (rand() % 2000 == 0) {
             items.push_back(new Heart(rand() % (SCREEN_WIDTH - 40), -40, heartTexture));
         }
@@ -362,7 +375,7 @@ void Game::update() {
             }
         }
 
-
+        // Enemy Spawn
         for (auto& enemy : enemies) {
             if (std::rand() % enemyFireRate == 0) {
                 int bulletX = enemy.x + enemy.w / 2 - 10;
@@ -376,6 +389,7 @@ void Game::update() {
             }
         }
 
+        // Bullet
         for (auto& bullet : enemyBullets) {
             bullet.update();
         }
@@ -390,6 +404,7 @@ void Game::update() {
         bullets.erase(std::remove_if(bullets.begin(), bullets.end(),
         [](const Bullet& b) { return b.y < 0; }), bullets.end());
 
+        // Va chạm
         for (auto it = enemyBullets.begin(); it != enemyBullets.end();) {
             if (it->collidesWith(*player)) {
                 playerLives--;
@@ -406,11 +421,12 @@ void Game::update() {
             }
         }
 
+        // Va chạm
         for (auto itBullet = bullets.begin(); itBullet != bullets.end();) {
             bool bulletHit = false;
             for (auto itEnemy = enemies.begin(); itEnemy != enemies.end();) {
                 if (itBullet->collidesWith(*itEnemy)) {
-                    increaseScore(100);
+                    increaseScore(20);
                     explosions.emplace_back(itEnemy->x, itEnemy->y, explosionTexture);
 
                     if (explosionSound) Mix_PlayChannel(-1, explosionSound, 0);
@@ -429,6 +445,7 @@ void Game::update() {
             }
         }
 
+        // va chạm
         for (auto itEnemy = enemies.begin(); itEnemy != enemies.end();) {
             itEnemy->y += ENEMY_SPEED;
             if (itEnemy->y + itEnemy->h >= barrier->y || itEnemy->collidesWith(*player)) {

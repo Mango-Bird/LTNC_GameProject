@@ -61,7 +61,7 @@ private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     Mix_Chunk* explosionSound;
-
+    Mix_Chunk* bulletSound;
     Mix_Music* backgroundMusic = nullptr;
 
     Entity* barrier;
